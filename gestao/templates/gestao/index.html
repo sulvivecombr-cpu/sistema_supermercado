@@ -2,17 +2,172 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Sistema Supermercado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VIA Atacadista — Sistema de Gestão</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      :root {
+        --via: #ff5722;
+        --via-hover: #e64a19;
+        --via-dark: #bf360c;
+        --via-tint: #fff3e0;
+        --bs-primary: #ff5722;
+        --bs-primary-rgb: 255, 87, 34;
+        --bs-link-color: #e64a19;
+        --bs-link-hover-color: #bf360c;
+      }
+
+      body {
+        background-color: #faf7f4;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ===== Navbar / Logo ===== */
+      .navbar-via {
+        background: linear-gradient(135deg, #ff6a33 0%, #ff5722 55%, #e64a19 100%);
+        box-shadow: 0 2px 12px rgba(191, 54, 12, 0.35);
+      }
+      .navbar-via .nav-link {
+        color: rgba(255, 255, 255, 0.92);
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        transition: background 0.15s ease;
+      }
+      .navbar-via .nav-link:hover,
+      .navbar-via .nav-link:focus {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+      }
+      .brand-via {
+        display: block;
+        font-size: 1.9rem;
+        font-weight: 900;
+        font-style: italic;
+        line-height: 1;
+        color: #fff;
+        letter-spacing: 0.02em;
+        text-shadow: 0 2px 4px rgba(191, 54, 12, 0.4);
+      }
+      .brand-atacadista {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.45em;
+        color: #fff;
+        margin-top: 3px;
+      }
+
+      /* ===== Botões ===== */
+      .btn-primary {
+        --bs-btn-bg: #ff5722;
+        --bs-btn-border-color: #ff5722;
+        --bs-btn-hover-bg: #e64a19;
+        --bs-btn-hover-border-color: #e64a19;
+        --bs-btn-active-bg: #bf360c;
+        --bs-btn-active-border-color: #bf360c;
+        --bs-btn-disabled-bg: #ffab91;
+        --bs-btn-disabled-border-color: #ffab91;
+        --bs-btn-focus-shadow-rgb: 255, 87, 34;
+      }
+      .btn-outline-primary {
+        --bs-btn-color: #e64a19;
+        --bs-btn-border-color: #ff5722;
+        --bs-btn-hover-bg: #ff5722;
+        --bs-btn-hover-border-color: #ff5722;
+        --bs-btn-hover-color: #fff;
+        --bs-btn-active-bg: #e64a19;
+        --bs-btn-active-border-color: #e64a19;
+        --bs-btn-focus-shadow-rgb: 255, 87, 34;
+      }
+      .btn-dark,
+      .bg-dark {
+        --bs-btn-bg: #bf360c;
+        --bs-btn-border-color: #bf360c;
+        --bs-btn-hover-bg: #8f2a09;
+        --bs-btn-hover-border-color: #8f2a09;
+        background-color: #bf360c !important;
+      }
+      .btn-dark {
+        color: #fff;
+      }
+      .bg-info,
+      .btn-info {
+        --bs-btn-bg: #f57c00;
+        --bs-btn-border-color: #f57c00;
+        --bs-btn-hover-bg: #e65100;
+        --bs-btn-hover-border-color: #e65100;
+        background-color: #f57c00 !important;
+        color: #fff;
+      }
+
+      /* ===== Formulários ===== */
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #ff5722;
+        box-shadow: 0 0 0 0.25rem rgba(255, 87, 34, 0.2);
+      }
+      .form-control,
+      .form-select {
+        border-radius: 0.5rem;
+      }
+
+      /* ===== Cards e tabelas ===== */
+      .card {
+        border-radius: 0.75rem;
+      }
+      .card-header {
+        border-top-left-radius: 0.75rem !important;
+        border-top-right-radius: 0.75rem !important;
+      }
+      .table {
+        --bs-table-hover-bg: #fff8f0;
+        --bs-table-hover-color: inherit;
+      }
+      .table-light {
+        background-color: var(--via-tint);
+      }
+      thead.table-light th {
+        color: #bf360c;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        letter-spacing: 0.05em;
+      }
+
+      .alert-primary {
+        background-color: var(--via-tint);
+        border-color: #ffccbc;
+        color: #bf360c;
+      }
+
+      footer.via-footer {
+        margin-top: auto;
+        padding: 1rem 0;
+        text-align: center;
+        color: #bf360c;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+    </style>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-via mb-4 py-2">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">Supermercado</a>
-        <div class="navbar-nav">
+        <a
+          class="navbar-brand d-flex flex-column lh-1 me-4"
+          href="{% url 'home' %}"
+        >
+          <span class="brand-via">VIA</span>
+          <span class="brand-atacadista">ATACADISTA</span>
+        </a>
+        <div class="navbar-nav gap-1">
           <a class="nav-link" href="{% url 'home' %}">Início</a>
           <a class="nav-link" href="{% url 'caixa' %}">🛒 Caixa</a>
           <a class="nav-link" href="{% url 'registrar_entrega' %}"
@@ -34,10 +189,12 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container flex-grow-1">
       {% if messages %} {% for message in messages %}
       <div class="alert alert-{{ message.tags }}">{{ message }}</div>
       {% endfor %} {% endif %} {% block content %} {% endblock %}
     </div>
+
+    <footer class="via-footer">VIA Atacadista — Sistema de Gestão</footer>
   </body>
 </html>
