@@ -1,0 +1,50 @@
+{% extends 'gestao/index.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3 flex-wrap gap-2">
+  <h3 class="fw-bold mb-0">👥 Clientes</h3>
+  <a href="{% url 'novo_cliente' %}" class="btn btn-primary fw-bold">+ Novo Cliente</a>
+</div>
+
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-md-5">
+    <input type="text" name="q" class="form-control" placeholder="Buscar por nome..." value="{{ busca }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+  </div>
+</form>
+
+<div class="card shadow border-0">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Nome</th>
+          <th>CPF</th>
+          <th>Nascimento</th>
+          <th class="text-center">💎 Pontos</th>
+          <th class="text-end pe-4">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+        <tr>
+          <td class="ps-4 fw-bold">{{ cliente.nome }}</td>
+          <td class="text-muted">{{ cliente.cpf }}</td>
+          <td><small class="text-muted">{{ cliente.data_nasc|date:"d/m/Y" }}</small></td>
+          <td class="text-center">
+            <span class="badge bg-warning text-dark rounded-pill">{{ cliente.pontos }}</span>
+          </td>
+          <td class="text-end pe-4">
+            <a href="{% url 'editar_cliente' cliente.pk %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4 text-muted">Nenhum cliente cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

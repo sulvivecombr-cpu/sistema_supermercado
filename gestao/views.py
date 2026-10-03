@@ -72,13 +72,23 @@ def caixa(request):
     
     carrinho = request.session['carrinho']
     valor_total_carrinho = sum(item['total'] for item in carrinho)
-    
+
+    # Consulta rápida de produto por código de barras
+    produto_consulta = None
+    cod_consulta = request.GET.get('consulta')
+    if cod_consulta:
+        try:
+            produto_consulta = Produto.objects.select_related('estoque').get(cod_barras=cod_consulta)
+        except (Produto.DoesNotExist, ValueError):
+            messages.info(request, f"Nenhum produto encontrado com o código {cod_consulta}.")
+
     form_item = FormularioItemVenda()
     form_fechar = FormularioFecharVenda()
     
     return render(request, 'gestao/caixa.html', {
         'carrinho': carrinho,
         'valor_total': valor_total_carrinho,
+        'produto_consulta': produto_consulta,
         'form_item': form_item,
         'form_fechar': form_fechar
     })
@@ -105,12 +115,21 @@ def adicionar_item(request):
                     carrinho = request.session.get('carrinho', [])
                     carrinho.append(item)
                     request.session['carrinho'] = carrinho
+                    messages.success(request, f"{produto.nome_produto} adicionado ({qtd}x R$ {produto.preco_venda:.2f}).")
                 else:
                     messages.error(request, f"Estoque insuficiente! Restam apenas {estoque.quantidade}.")
                     
             except Produto.DoesNotExist:
                 messages.error(request, "Produto não encontrado.")
                 
+    return redirect('caixa')
+
+def remover_item(request, index):
+    carrinho = request.session.get('carrinho', [])
+    if 0 <= index < len(carrinho):
+        item = carrinho.pop(index)
+        request.session['carrinho'] = carrinho
+        messages.info(request, f"{item['nome']} removido do carrinho.")
     return redirect('caixa')
 
 def limpar_carrinho(request):
@@ -130,12 +149,30 @@ def fechar_venda(request):
         if form.is_valid():
             cliente = form.cleaned_data['cliente']
             funcionario = form.cleaned_data['funcionario']
+            pontos_resgatar = form.cleaned_data.get('pontos_resgatar') or 0
             valor_total = sum(item['total'] for item in carrinho)
+
+            # Validações do resgate de pontos (1 ponto = R$ 1,00)
+            if pontos_resgatar > 0:
+                if not cliente:
+                    messages.error(request, "Para resgatar pontos é preciso selecionar um cliente.")
+                    return redirect('caixa')
+                if pontos_resgatar < 10:
+                    messages.error(request, "O resgate mínimo é de 10 pontos.")
+                    return redirect('caixa')
+                if pontos_resgatar > cliente.pontos:
+                    messages.error(request, f"{cliente.nome} possui apenas {cliente.pontos} pontos.")
+                    return redirect('caixa')
+                if pontos_resgatar > valor_total:
+                    messages.error(request, "O desconto não pode ser maior que o total da venda.")
+                    return redirect('caixa')
+
+            valor_final = valor_total - pontos_resgatar
             
             nova_venda = Venda.objects.create(
                 funcionario=funcionario,
                 cliente=cliente,
-                valor_total=valor_total,
+                valor_total=valor_final,
                 data_venda=timezone.now()
             )
             
@@ -145,7 +182,8 @@ def fechar_venda(request):
                 ItemVenda.objects.create(
                     venda=nova_venda,
                     produto=produto,
-                    quantidade=item['quantidade']
+                    quantidade=item['quantidade'],
+                    preco_unitario=item['preco_unitario']
                 )
                 
                 estoque = Estoque.objects.get(produto=produto)
@@ -157,10 +195,18 @@ def fechar_venda(request):
                     messages.warning(request, f"Atenção: {produto.nome_produto} ficou com estoque baixo!")
 
             if cliente:
-                pontos_ganhos = int(valor_total // 10)
+                cliente.pontos -= pontos_resgatar
+                pontos_ganhos = int(valor_final // 10)
                 cliente.pontos += pontos_ganhos
                 cliente.save()
-                messages.success(request, f"Venda realizada! Cliente {cliente.nome} ganhou {pontos_ganhos} pontos.")
+                if pontos_resgatar:
+                    messages.success(
+                        request,
+                        f"Venda realizada! Desconto de R$ {pontos_resgatar:.2f} aplicado. "
+                        f"{cliente.nome} ganhou {pontos_ganhos} pontos."
+                    )
+                else:
+                    messages.success(request, f"Venda realizada! Cliente {cliente.nome} ganhou {pontos_ganhos} pontos.")
             else:
                 messages.success(request, "Venda realizada com sucesso!")
             

@@ -30,6 +30,32 @@
       </div>
     </div>
 
+    <div class="card shadow-lg border-0 mb-4">
+      <div class="card-header bg-info text-white py-3">
+        <h4 class="mb-0 fw-bold">🔍 Consultar Produto</h4>
+      </div>
+      <div class="card-body p-4">
+        <form action="{% url 'caixa' %}" method="GET" class="d-flex gap-2">
+          <input
+            type="number"
+            name="consulta"
+            class="form-control"
+            placeholder="Digite o código de barras"
+            value="{{ request.GET.consulta }}"
+          />
+          <button type="submit" class="btn btn-info text-white fw-bold">Buscar</button>
+        </form>
+        {% if produto_consulta %}
+          <div class="alert alert-info mt-3 mb-0">
+            <strong>{{ produto_consulta.nome_produto }}</strong
+            ><br />
+            Preço: <strong>R$ {{ produto_consulta.preco_venda|floatformat:2 }}</strong> ·
+            Estoque: <strong>{{ produto_consulta.estoque.quantidade }}</strong>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
     <div class="card shadow-lg border-0">
       <div class="card-header bg-success text-white py-3">
         <h4 class="mb-0 fw-bold">💳 Finalizar Venda</h4>
@@ -49,6 +75,16 @@
             >
             {{ form_fechar.cliente }}
             <div class="form-text">Selecionar para acumular pontos.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold text-warning"
+              >{{ form_fechar.pontos_resgatar.label }}</label
+            >
+            {{ form_fechar.pontos_resgatar }}
+            <div class="form-text">
+              1 ponto = R$ 1,00 de desconto. Resgate mínimo: 10 pontos.
+            </div>
           </div>
 
           <hr />
@@ -98,7 +134,15 @@
           <tbody>
             {% for item in carrinho %}
             <tr>
-              <td class="ps-4 fw-bold text-dark">{{ item.nome }}</td>
+              <td class="ps-4 fw-bold text-dark">
+                {{ item.nome }}
+                <a
+                  href="{% url 'remover_item' forloop.counter0 %}"
+                  class="btn btn-sm btn-outline-danger ms-2 py-0"
+                  title="Remover item do carrinho"
+                  >✕</a
+                >
+              </td>
               <td class="text-center">
                 <span class="badge bg-secondary rounded-pill"
                   >{{ item.quantidade }}</span

@@ -97,3 +97,4 @@ class ItemVenda(models.Model):
     venda = models.ForeignKey(Venda, on_delete=models.CASCADE)
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     quantidade = models.IntegerField(default=1)
+    preco_unitario = models.FloatField(default=0)  # preço no momento da venda (histórico fiel)

@@ -1,0 +1,28 @@
+{% extends 'gestao/index.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5 col-lg-4">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-dark text-white text-center py-3">
+        <h4 class="mb-0">🔐 Login do Administrador</h4>
+        <small>Cadastros, relatórios e histórico</small>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-bold">Usuário</label>
+            <input type="text" name="username" class="form-control" autofocus required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Senha</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-dark w-100 fw-bold">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

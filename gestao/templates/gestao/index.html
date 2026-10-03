@@ -14,13 +14,22 @@
         <a class="navbar-brand" href="{% url 'home' %}">Supermercado</a>
         <div class="navbar-nav">
           <a class="nav-link" href="{% url 'home' %}">Início</a>
+          <a class="nav-link" href="{% url 'caixa' %}">🛒 Caixa</a>
           <a class="nav-link" href="{% url 'registrar_entrega' %}"
             >Receber Entrega</a
           >
-          <a class="nav-link" href="/admin" target="_blank"
-            >Admin (Banco de Dados)</a
+          <a class="nav-link" href="{% url 'lista_produtos' %}">Produtos</a>
+          <a class="nav-link" href="{% url 'lista_clientes' %}">Clientes</a>
+          <a class="nav-link" href="{% url 'lista_funcionarios' %}"
+            >Funcionários</a
           >
-          <a class="nav-link" href="{% url 'caixa' %}">🛒 Caixa (Vendas)</a>
+          <a class="nav-link" href="{% url 'vendas' %}">Vendas</a>
+          <a class="nav-link" href="{% url 'relatorios' %}">Relatórios</a>
+          {% if user.is_staff %}
+          <a class="nav-link" href="{% url 'logout' %}">Sair (admin)</a>
+          {% else %}
+          <a class="nav-link" href="{% url 'login' %}">Login Admin</a>
+          {% endif %}
         </div>
       </div>
     </nav>

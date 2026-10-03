@@ -1,0 +1,116 @@
+{% extends 'gestao/index.html' %}
+
+{% block content %}
+<h3 class="fw-bold mt-4 mb-4">📊 Relatórios</h3>
+
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="display-6">💰</div>
+        <h6 class="text-muted text-uppercase small fw-bold">Faturamento Hoje</h6>
+        <h4 class="fw-bold text-success">R$ {{ faturamento_hoje|floatformat:2 }}</h4>
+        <small class="text-muted">{{ vendas_hoje }} venda(s)</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="display-6">📅</div>
+        <h6 class="text-muted text-uppercase small fw-bold">Faturamento do Mês</h6>
+        <h4 class="fw-bold text-primary">R$ {{ faturamento_mes|floatformat:2 }}</h4>
+        <small class="text-muted">{{ vendas_mes }} venda(s)</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="display-6">📈</div>
+        <h6 class="text-muted text-uppercase small fw-bold">Lucro Estimado do Mês</h6>
+        <h4 class="fw-bold text-dark">R$ {{ lucro_mes|floatformat:2 }}</h4>
+        <small class="text-muted">Venda - custo dos produtos</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body text-center p-4">
+        <div class="display-6">🛒</div>
+        <h6 class="text-muted text-uppercase small fw-bold">Ações Rápidas</h6>
+        <a href="{% url 'vendas' %}" class="btn btn-outline-primary btn-sm fw-bold w-100 mb-2">Ver Histórico de Vendas</a>
+        <a href="{% url 'lista_produtos' %}" class="btn btn-outline-success btn-sm fw-bold w-100">Ver Produtos</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold text-primary">🏆 Top 10 Produtos Mais Vendidos</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">#</th>
+              <th>Produto</th>
+              <th class="text-center">Qtd Vendida</th>
+              <th class="text-end pe-4">Receita</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prod in top_produtos %}
+            <tr>
+              <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+              <td class="fw-bold">{{ prod.produto__nome_produto }}</td>
+              <td class="text-center">
+                <span class="badge bg-primary rounded-pill">{{ prod.qtd_vendida }}</span>
+              </td>
+              <td class="text-end pe-4 text-success fw-bold">R$ {{ prod.receita|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4 text-muted">Nenhuma venda registrada ainda.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 fw-bold text-warning">💎 Fidelidade — Pontos dos Clientes</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Cliente</th>
+              <th class="text-center">Pontos</th>
+              <th class="text-end pe-4">Valor em Desconto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cliente in clientes_fidelidade %}
+            <tr>
+              <td class="ps-4 fw-bold">{{ cliente.nome }}</td>
+              <td class="text-center">
+                <span class="badge bg-warning text-dark rounded-pill">{{ cliente.pontos }}</span>
+              </td>
+              <td class="text-end pe-4 text-muted">R$ {{ cliente.pontos|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center py-4 text-muted">Nenhum cliente cadastrado.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'gestao/index.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3 flex-wrap gap-2">
+  <h3 class="fw-bold mb-0">🧑‍💼 Funcionários</h3>
+  <a href="{% url 'novo_funcionario' %}" class="btn btn-primary fw-bold">+ Novo Funcionário</a>
+</div>
+
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-md-5">
+    <input type="text" name="q" class="form-control" placeholder="Buscar por nome..." value="{{ busca }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+  </div>
+</form>
+
+<div class="card shadow border-0">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Nome</th>
+          <th>Matrícula</th>
+          <th>CPF</th>
+          <th>Caixa</th>
+          <th>Salário</th>
+          <th>Carga Horária</th>
+          <th class="text-end pe-4">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for funcionario in funcionarios %}
+        <tr>
+          <td class="ps-4 fw-bold">{{ funcionario.nome }}</td>
+          <td><span class="badge bg-secondary">{{ funcionario.matricula }}</span></td>
+          <td class="text-muted">{{ funcionario.cpf }}</td>
+          <td>{% if funcionario.num_caixa %}Caixa {{ funcionario.num_caixa }}{% else %}—{% endif %}</td>
+          <td>R$ {{ funcionario.salario|floatformat:2 }}</td>
+          <td class="text-muted">{{ funcionario.carga_horaria }}</td>
+          <td class="text-end pe-4">
+            <a href="{% url 'editar_funcionario' funcionario.pk %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4 text-muted">Nenhum funcionário cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

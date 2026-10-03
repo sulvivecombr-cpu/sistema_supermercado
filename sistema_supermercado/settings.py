@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+LOGIN_URL = 'login'
+
+# Bootstrap usa 'danger' em vez de 'error' nas classes de alerta
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {message_constants.ERROR: 'danger'}
+
 
 # Application definition
 
