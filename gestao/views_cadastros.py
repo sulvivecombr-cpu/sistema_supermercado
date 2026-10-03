@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.db.models import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .decorators import admin_required
@@ -67,6 +68,20 @@ def produto_form(request, pk=None):
     return render(request, 'gestao/produto_form.html', {'form': form, 'produto': produto})
 
 
+@admin_required
+def excluir_produto(request, pk):
+    produto = get_object_or_404(Produto, pk=pk)
+    if produto.itemvenda_set.exists() or produto.entregas.exists():
+        messages.error(
+            request,
+            f'"{produto.nome_produto}" possui histórico de vendas/entregas e não pode ser excluído.',
+        )
+    else:
+        messages.success(request, f'Produto "{produto.nome_produto}" excluído.')
+        produto.delete()
+    return redirect('lista_produtos')
+
+
 # ---------- Clientes ----------
 
 @admin_required
@@ -94,6 +109,14 @@ def cliente_form(request, pk=None):
     return render(request, 'gestao/cliente_form.html', {'form': form, 'cliente': cliente})
 
 
+@admin_required
+def excluir_cliente(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    messages.success(request, f'Cliente "{cliente.nome}" excluído.')
+    cliente.delete()  # vendas antigas mantêm o registro (cliente fica nulo)
+    return redirect('lista_clientes')
+
+
 # ---------- Funcionários ----------
 
 @admin_required
@@ -119,3 +142,17 @@ def funcionario_form(request, pk=None):
     else:
         form = FormularioFuncionario(instance=funcionario)
     return render(request, 'gestao/funcionario_form.html', {'form': form, 'funcionario': funcionario})
+
+
+@admin_required
+def excluir_funcionario(request, pk):
+    funcionario = get_object_or_404(Funcionario, pk=pk)
+    try:
+        funcionario.delete()
+        messages.success(request, f'Funcionário "{funcionario.nome}" excluído.')
+    except ProtectedError:
+        messages.error(
+            request,
+            f'"{funcionario.nome}" possui vendas registradas e não pode ser excluído.',
+        )
+    return redirect('lista_funcionarios')

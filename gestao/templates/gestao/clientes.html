@@ -38,6 +38,8 @@
           </td>
           <td class="text-end pe-4">
             <a href="{% url 'editar_cliente' cliente.pk %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+            <a href="{% url 'excluir_cliente' cliente.pk %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Excluir o cliente {{ cliente.nome }}?')">🗑️</a>
           </td>
         </tr>
         {% empty %}

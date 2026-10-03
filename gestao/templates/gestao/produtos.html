@@ -44,6 +44,8 @@
           </td>
           <td class="text-end pe-4">
             <a href="{% url 'editar_produto' produto.pk %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+            <a href="{% url 'excluir_produto' produto.pk %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Excluir o produto {{ produto.nome_produto }}?')">🗑️</a>
           </td>
         </tr>
         {% empty %}

@@ -45,6 +45,12 @@ def registrar_entrega(request):
                     tamanho=0, peso=0 
                 )
                 Estoque.objects.create(produto=produto_obj, quantidade=0)
+            else:
+                # Produto já cadastrado: atualiza o preço de custo (e o de venda, se informado)
+                produto_obj.preco_compra = dados['preco_compra']
+                if dados['preco_venda']:
+                    produto_obj.preco_venda = dados['preco_venda']
+                produto_obj.save()
             
             estoque_obj = Estoque.objects.get(produto=produto_obj)
             estoque_obj.quantidade += qtd
@@ -103,21 +109,29 @@ def adicionar_item(request):
             try:
                 produto = Produto.objects.get(cod_barras=cod)
                 estoque = Estoque.objects.get(produto=produto)
-                
-                if estoque.quantidade >= qtd:
-                    item = {
-                        'cod_barras': produto.cod_barras,
-                        'nome': produto.nome_produto,
-                        'preco_unitario': produto.preco_venda,
-                        'quantidade': qtd,
-                        'total': produto.preco_venda * qtd
-                    }
-                    carrinho = request.session.get('carrinho', [])
-                    carrinho.append(item)
+
+                carrinho = request.session.get('carrinho', [])
+                ja_no_carrinho = sum(i['quantidade'] for i in carrinho if i['cod_barras'] == cod)
+
+                if ja_no_carrinho + qtd > estoque.quantidade:
+                    messages.error(request, f"Estoque insuficiente! Restam apenas {estoque.quantidade} de {produto.nome_produto}.")
+                else:
+                    # Junta as quantidades se o produto já estiver no carrinho
+                    for item in carrinho:
+                        if item['cod_barras'] == cod:
+                            item['quantidade'] += qtd
+                            item['total'] = item['quantidade'] * item['preco_unitario']
+                            break
+                    else:
+                        carrinho.append({
+                            'cod_barras': produto.cod_barras,
+                            'nome': produto.nome_produto,
+                            'preco_unitario': produto.preco_venda,
+                            'quantidade': qtd,
+                            'total': produto.preco_venda * qtd
+                        })
                     request.session['carrinho'] = carrinho
                     messages.success(request, f"{produto.nome_produto} adicionado ({qtd}x R$ {produto.preco_venda:.2f}).")
-                else:
-                    messages.error(request, f"Estoque insuficiente! Restam apenas {estoque.quantidade}.")
                     
             except Produto.DoesNotExist:
                 messages.error(request, "Produto não encontrado.")
@@ -168,7 +182,14 @@ def fechar_venda(request):
                     return redirect('caixa')
 
             valor_final = valor_total - pontos_resgatar
-            
+
+            # Revalida o estoque no momento do fechamento (evita estoque negativo)
+            for item in carrinho:
+                estoque = Estoque.objects.get(produto__cod_barras=item['cod_barras'])
+                if estoque.quantidade < item['quantidade']:
+                    messages.error(request, f"Estoque insuficiente para {item['nome']}: restam {estoque.quantidade}.")
+                    return redirect('caixa')
+
             nova_venda = Venda.objects.create(
                 funcionario=funcionario,
                 cliente=cliente,
@@ -211,5 +232,7 @@ def fechar_venda(request):
                 messages.success(request, "Venda realizada com sucesso!")
             
             del request.session['carrinho']
+        else:
+            messages.error(request, "Não foi possível fechar a venda. Verifique se o funcionário do caixa foi selecionado.")
             
     return redirect('caixa')
